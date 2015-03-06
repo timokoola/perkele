@@ -8,7 +8,7 @@ keyfile = "prklsuomi.keys"
 api = None
 ats = re.compile("@\w+")
 url = re.compile("http://\S+")
-risu = re.compile("#\w+")
+risu = re.compile("#\S+")
 
 class TwythonHelper:
 
@@ -32,7 +32,7 @@ class MyStreamer(TwythonStreamer):
                 return
             clipped = ats.sub("",fulltext)
             clipped = url.sub("",clipped)
-            clipper = risu.sub("",clipped)
+            clipped = risu.sub("",clipped)
             clipped = clipped.strip()
             try:
                 api.update_status(status=clipped)
