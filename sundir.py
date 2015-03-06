@@ -32,7 +32,7 @@ def sunrise_string(sun):
 	if sun.sunset() < now:
 		tsun = helsinki_sun().sun(tomorrow)["sunrise"]
 		timestr = "%d.%02d" % (tsun.time().hour, tsun.time().minute)
-		return "Aurinko nousee huomenna %s." % timestr
+		return "Aurinko nousee aamulla %s." % timestr
 	elif sun.sunrise() > now:
 		return "Aurinko nousee %s." % timestr
 	else:
@@ -57,5 +57,5 @@ if __name__ == '__main__':
 	sun = helsinki_sun()
 	tweet =  "\n".join([sunrise_string(sun), sunset_string(sun), sundir_str(sun)])
 	print tweet, len(tweet)
-	api = (TwythonHelper("test.keys")).api
+	api = (TwythonHelper("helsingintaivas.keys")).api
 	api.update_status(status=tweet)
