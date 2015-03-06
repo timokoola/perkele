@@ -32,7 +32,7 @@ class MyStreamer(TwythonStreamer):
                 return
             clipped = ats.sub("",fulltext)
             clipped = url.sub("",clipped)
-            clipper = risu.sub("",clipped)
+            clipped = risu.sub("",clipped)
             clipped = clipped.strip()
             try:
                 api.update_status(status=clipped)
