@@ -42,7 +42,6 @@ class TwythonHelper:
 class MyStreamer(TwythonStreamer):
     def on_success(self, data):
         if 'text' in data:
-            save_tweet_db(data)
             fulltext = data["text"]
             if fulltext.startswith("RT"):
                 print "RT, skipped"
@@ -50,6 +49,7 @@ class MyStreamer(TwythonStreamer):
             if data["user"]["id"] == me:
                 print "My own tweet"
                 return
+            save_tweet_db(data)
             if data["lang"] != "fi":
                 print "Ei suomea"
                 return
