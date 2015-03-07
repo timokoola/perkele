@@ -59,4 +59,4 @@ if __name__ == '__main__':
     api = helper.api
     stream = MyStreamer(helper.consumerkey, helper.consumersecret,
                     helper.accesstoken, helper.accesssec)
-    stream.statuses.filter(track='perkele,vittu,saatana')
+    stream.statuses.filter(track='perkele,vittu,saatana,vitun,saatanan,perkeleen,jumalauta,paska')
