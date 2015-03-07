@@ -12,7 +12,7 @@ conn = sqlite3.connect('tweets.db')
 r = random.Random()
 
 
-keyfile = "test.keys"
+keyfile = "prklsuomi.keys"
 me = 3075601787
 api = None
 ats = re.compile("@\w+")
