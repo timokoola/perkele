@@ -4,13 +4,27 @@ from twython import Twython
 from twython.exceptions import TwythonError
 import re
 import pprint
+import sqlite3
+import time
+import json
+import random
+conn = sqlite3.connect('tweets.db')
+r = random.Random()
 
-keyfile = "prklsuomi.keys"
+
+keyfile = "test.keys"
 me = 3075601787
 api = None
 ats = re.compile("@\w+")
 url = re.compile("http://\S+")
 risu = re.compile("#\S+")
+
+def save_tweet_db(tweet):
+    c = conn.cursor()
+    row = ("%f" % time.time(), json.dumps(tweet), tweet["user"]["id"], tweet["text"])
+    c.execute('INSERT INTO tweets VALUES (?,?,?,?)', row)
+    conn.commit()
+
 
 class TwythonHelper:
 
@@ -28,6 +42,7 @@ class TwythonHelper:
 class MyStreamer(TwythonStreamer):
     def on_success(self, data):
         if 'text' in data:
+            save_tweet_db(data)
             fulltext = data["text"]
             if fulltext.startswith("RT"):
                 print "RT, skipped"
@@ -43,7 +58,10 @@ class MyStreamer(TwythonStreamer):
             clipped = risu.sub("",clipped)
             clipped = clipped.strip()
             try:
-                api.update_status(status=clipped)
+                if r.random() < 0.1:
+                    api.update_status(status=clipped)
+                else:
+                    print "Skipped tweeting randomly."
             except TwythonError:
                 print "Duplicate"
 
