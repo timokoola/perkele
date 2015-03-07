@@ -54,3 +54,4 @@ docs/_build/
 target/
 supervisord.conf
 *.keys
+tweets.db
