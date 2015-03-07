@@ -3,8 +3,10 @@ from twython import TwythonStreamer
 from twython import Twython
 from twython.exceptions import TwythonError
 import re
+import pprint
 
 keyfile = "prklsuomi.keys"
+me = 3075601787
 api = None
 ats = re.compile("@\w+")
 url = re.compile("http://\S+")
@@ -29,6 +31,12 @@ class MyStreamer(TwythonStreamer):
             fulltext = data["text"]
             if fulltext.startswith("RT"):
                 print "RT, skipped"
+                return
+            if data["user"]["id"] == me:
+                print "My own tweet"
+                return
+            if data["lang"] != "fi":
+                print "Ei suomea"
                 return
             clipped = ats.sub("",fulltext)
             clipped = url.sub("",clipped)
