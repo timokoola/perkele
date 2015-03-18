@@ -5,6 +5,7 @@ from twython.exceptions import TwythonError
 import re
 
 keyfile = "enmutta.keys"
+me = "enmutta"
 api = None
 ats = re.compile("@\w+")
 url = re.compile("http://\S+")
@@ -30,6 +31,9 @@ class MyStreamer(TwythonStreamer):
             if fulltext.startswith("RT"):
                 print "RT, skipped"
                 return
+            if data["user"]["screen_name"] == me:
+                print "My own tweet"
+                return
             clipped = ats.sub("",fulltext)
             clipped = url.sub("",clipped)
             clipped = risu.sub("",clipped)
@@ -54,6 +58,7 @@ class MyStreamer(TwythonStreamer):
 if __name__ == '__main__':
     helper = (TwythonHelper(keyfile))
     api = helper.api
+    me = api.get_account_settings()["screen_name"]
     stream = MyStreamer(helper.consumerkey, helper.consumersecret,
                     helper.accesstoken, helper.accesssec)
     stream.statuses.filter(track='en ole mutta')
