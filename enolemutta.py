@@ -3,13 +3,13 @@ from twython import TwythonStreamer
 from twython import Twython
 from twython.exceptions import TwythonError
 import re
+from tweet_parse_utils import *
+ 
 
 keyfile = "enmutta.keys"
 me = "enmutta"
 api = None
-ats = re.compile("@\w+")
-url = re.compile("http://\S+")
-risu = re.compile("#\S+")
+
 
 class TwythonHelper:
 
@@ -24,20 +24,27 @@ class TwythonHelper:
 
         self.api = Twython(self.consumerkey, self.consumersecret, self.accesstoken, self.accesssec)
 
+
 class MyStreamer(TwythonStreamer):
     def on_success(self, data):
         if 'text' in data:
-            fulltext = data["text"]
+            info = data.get("extended_tweet", data)
+
+            fulltext = info.get("full_text", info.get("text"))
             if fulltext.startswith("RT"):
                 print "RT, skipped"
                 return
             if data["user"]["screen_name"] == me:
                 print "My own tweet"
                 return
-            clipped = ats.sub("",fulltext)
-            clipped = url.sub("",clipped)
-            clipped = risu.sub("",clipped)
-            clipped = clipped.strip()
+
+            indices = get_entity_indice_list(info["entities"])
+
+            clipped = strip_by_indices(fulltext, indices)
+            clipped = fix_html_entities(clipped)
+            if len(fulltext) > 2 and fulltext[1] == '@':
+                clipped = clipped[2:]
+
             comp = clipped.lower()
             order = [comp.find(x) for x in ["en", "ole", "mutta"]]
             if sorted(order) == order and -1 not in order:
@@ -54,6 +61,7 @@ class MyStreamer(TwythonStreamer):
         # Want to stop trying to get data because of the error?
         # Uncomment the next line!
         # self.disconnect()
+
 
 if __name__ == '__main__':
     helper = (TwythonHelper(keyfile))
