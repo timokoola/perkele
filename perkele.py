@@ -8,6 +8,9 @@ import sqlite3
 import time
 import json
 import random
+from tweet_parse_utils import *
+
+
 conn = sqlite3.connect('tweets.db')
 r = random.Random()
 
@@ -15,9 +18,9 @@ r = random.Random()
 keyfile = "prklsuomi.keys"
 me = 3075601787
 api = None
-ats = re.compile("@\w+")
-url = re.compile("http://\S+")
-risu = re.compile("#\S+")
+track_words = ['perkele', 'vittu', 'saatana', 'vitun', 'saatanan',
+               'perkeleen', 'jumalauta', 'paska']
+
 
 def save_tweet_db(tweet):
     c = conn.cursor()
@@ -39,10 +42,13 @@ class TwythonHelper:
 
         self.api = Twython(self.consumerkey, self.consumersecret, self.accesstoken, self.accesssec)
 
+
 class MyStreamer(TwythonStreamer):
     def on_success(self, data):
         if 'text' in data:
-            fulltext = data["text"]
+            info = data.get("extended_tweet", data)
+
+            fulltext = info.get("full_text", info.get("text"))
             if fulltext.startswith("RT"):
                 print "RT, skipped"
                 return
@@ -53,10 +59,19 @@ class MyStreamer(TwythonStreamer):
             if data["lang"] != "fi":
                 print "Ei suomea"
                 return
-            clipped = ats.sub("",fulltext)
-            clipped = url.sub("",clipped)
-            clipped = risu.sub("",clipped)
-            clipped = clipped.strip()
+
+            indices = get_entity_indice_list(info["entities"])
+
+            clipped = strip_by_indices(fulltext, indices)
+            clipped = fix_html_entities(clipped)
+            if len(fulltext) > 2 and fulltext[1] == '@':
+                clipped = clipped[2:]
+
+            comp = clipped.lower()
+            if not any(w in comp for w in track_words):
+                print "No track words in clipped tweet\n"
+                return
+
             try:
                 if r.random() < 0.1:
                     api.update_status(status=clipped)
@@ -72,9 +87,10 @@ class MyStreamer(TwythonStreamer):
         # Uncomment the next line!
         # self.disconnect()
 
+
 if __name__ == '__main__':
     helper = (TwythonHelper(keyfile))
     api = helper.api
     stream = MyStreamer(helper.consumerkey, helper.consumersecret,
                     helper.accesstoken, helper.accesssec)
-    stream.statuses.filter(track='perkele,vittu,saatana,vitun,saatanan,perkeleen,jumalauta,paska')
+    stream.statuses.filter(track=','.join(track_words))
