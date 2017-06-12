@@ -55,3 +55,4 @@ target/
 supervisord.conf
 *.keys
 tweets.db
+kysymystweets.db
