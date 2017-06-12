@@ -80,7 +80,7 @@ class MyStreamer(TwythonStreamer):
                     for s in sentences:
                         if s.endswith("?"):
                             save_tweet_db(data, s)
-                            if r.random() < 0.07 and len(s) > 5:
+                            if r.random() < 0.01 and len(s) > 5:
                                 api.update_status(status=s)
                 except TwythonError:
                     pass
